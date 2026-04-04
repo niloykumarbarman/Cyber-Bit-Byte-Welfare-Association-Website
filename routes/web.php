@@ -1,16 +1,30 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
-Route::view('/', 'home')->name('home');
-Route::view('/about', 'about')->name('about');
-Route::view('/committee', 'committee')->name('committee');
-Route::view('/members', 'members')->name('members');
-Route::view('/gallery', 'gallery')->name('gallery');
-Route::view('/notice', 'notice')->name('notice');
-Route::view('/publications', 'publications')->name('publications');
-Route::view('/contact', 'contact')->name('contact');
 
-Route::get('/login', function () {
-    return redirect('/admin/login');
-})->name('login');
+// Main Home Page
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// Final Fix Route to Clear Cache and Migrate Database
+Route::get('/final-fix', function () {
+    try {
+        // 1. Clear All Application Cache
+        Artisan::call('config:clear');
+        Artisan::call('cache:clear');
+        Artisan::call('view:clear');
+        Artisan::call('route:clear');
+
+        // 2. Run Database Migrations
+        Artisan::call('migrate --force');
+
+        return "<h1>Success!</h1> <p>Cache cleared and database migrated successfully. <a href='/'>Click here</a> to visit the site.</p>";
+        
+    } catch (\Exception $e) {
+        // Return Error Message if something goes wrong
+        return "<h1>Error!</h1> <p>Message: " . $e->getMessage() . "</p>";
+    }
+});
