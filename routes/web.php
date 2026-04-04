@@ -3,28 +3,26 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
-
-// Main Home Page
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Final Fix Route to Clear Cache and Migrate Database
+// This route clears all cache and runs migrations to fix the 500 error
 Route::get('/final-fix', function () {
     try {
-        // 1. Clear All Application Cache
+        // Clear all configurations and cache
         Artisan::call('config:clear');
         Artisan::call('cache:clear');
         Artisan::call('view:clear');
         Artisan::call('route:clear');
 
-        // 2. Run Database Migrations
+        // Force the database migration
         Artisan::call('migrate --force');
 
-        return "<h1>Success!</h1> <p>Cache cleared and database migrated successfully. <a href='/'>Click here</a> to visit the site.</p>";
+        return "<h1>Success!</h1><p>Cache cleared and Database migrated. <a href='/'>Click here to see your site.</a></p>";
         
     } catch (\Exception $e) {
-        // Return Error Message if something goes wrong
-        return "<h1>Error!</h1> <p>Message: " . $e->getMessage() . "</p>";
+        // This will display the actual error message on screen
+        return "<h1>Error Found:</h1><p>" . $e->getMessage() . "</p>";
     }
 });
