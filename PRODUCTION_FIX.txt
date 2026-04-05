@@ -1,10 +1,21 @@
-# Quick Production Fix Guide
+# Production Fatal Error - Bootstrap Fix
 
-The error on welfare.cyberbitbyte.com is a Laravel bootstrap caching issue. Follow these steps to fix it:
+## Error Diagnosis
 
-## Option 1: Auto-Fix Script (Recommended)
+**Error Message:**
+```
+Uncaught BadMethodCallException: Method Illuminate\Foundation\Application::configure does not exist
+```
 
-SSH into your production server and run:
+**Cause:** 
+- Corrupted vendor directory or cached files
+- Version mismatch between code and dependencies
+- Missing or corrupted bootstrap/cache directory
+- Incorrect file permissions
+
+## 🚀 FASTEST FIX (Recommended)
+
+SSH to your production server and run:
 
 ```bash
 cd /home/cyberbit/welfare.cyberbitbyte.com
@@ -12,114 +23,218 @@ bash scripts/production-fix.sh
 ```
 
 This script will:
-- Pull latest code from GitHub
-- Clear all caches
-- Optimize the application
-- Run migrations
-- Set proper permissions
+1. Set correct permissions
+2. Remove vendor and reinstall all dependencies clean
+3. Reset code to latest GitHub version
+4. Remove ALL cache files
+5. Rebuild optimized caches
+6. Run migrations
+7. Verify server health
 
-## Option 2: Manual Fix
+The script will automatically verify success at the end. ✓
 
-SSH into your production server and run these commands:
+## Manual Fix Steps (If script doesn't work)
 
+If the script has issues, follow these steps manually:
+
+### Step 1: Connect to Server
+```bash
+ssh -i your_key.pem cyberbit@your-server-ip
+```
+
+### Step 2: Navigate to Project
 ```bash
 cd /home/cyberbit/welfare.cyberbitbyte.com
+```
 
-# Pull latest code
-git pull origin main
+### Step 3: Clean Everything
+```bash
+# Remove vendor and lock file
+rm -rf vendor composer.lock
 
-# Install dependencies
+# Reset git to match GitHub exactly
+git fetch origin
+git reset --hard origin/main
+
+# Remove all cache files
+rm -rf storage/framework/cache/*
+rm -rf storage/framework/views/*
+rm -rf bootstrap/cache/*
+
+# Fix permissions
+chmod -R 777 storage bootstrap/cache
+```
+
+### Step 4: Reinstall Clean
+```bash
+# Fresh install
 composer install --no-dev --optimize-autoloader
 
-# Clear all caches
+# Verify
+php composer.phar diagnose
+```
+
+### Step 5: Clear and Rebuild Caches
+```bash
 php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
 php artisan route:clear
 
-# Rebuild caches
+# Rebuild optimized caches
 php artisan config:cache
-php artisan route:cache
+php artisan route:cache  
 php artisan view:cache
-
-# Run migrations
-php artisan migrate --force
-
-# Set permissions
-find storage -type f -exec chmod 644 {} \;
-find storage -type d -exec chmod 755 {} \;
 ```
 
-## Option 3: Update .env File
-
-The production server needs to use the correct .env configuration:
-
+### Step 6: Run Migrations
 ```bash
-cd /home/cyberbit/welfare.cyberbitbyte.com
-
-# Copy the production environment file
-cp .env.production .env
-
-# Update database credentials in .env
-nano .env
-
-# Make sure these are set correctly:
-# - DB_CONNECTION=mysql (or your database type)
-# - DB_HOST=localhost
-# - DB_DATABASE=welfare_db
-# - DB_USERNAME=welfare_user
-# - DB_PASSWORD=your_actual_password
-# - APP_ENV=production
-# - APP_DEBUG=false
-# - APP_URL=https://welfare.cyberbitbyte.com
+php artisan migrate --force
 ```
 
-## Test the Fix
-
-After running the fix script, visit:
-
+### Step 7: Fix Permissions Again
+```bash
+chown -R www-data:www-data .
+find . -type f -name "*.php" -exec chmod 644 {} \;
+find storage -type f -exec chmod 644 {} \;
+find bootstrap/cache -type f -exec chmod 644 {} \;
 ```
-https://welfare.cyberbitbyte.com/health
+
+### Step 8: Test
+```bash
+curl https://welfare.cyberbitbyte.com/health
 ```
 
 You should see:
 ```json
-{
-  "status": "ok",
-  "timestamp": "2026-04-05T...",
-  "app": "Cyber-Bit Welfare"
-}
+{"status":"ok","timestamp":"...","app":"Cyber-Bit Welfare"}
 ```
 
-If you see this response, the site is fixed! ✅
+## If Still Getting Error
 
-## Still Having Issues?
+Check these in order:
 
-Check these:
+### 1. Check Error Logs
+```bash
+tail -100 storage/logs/laravel.log
+```
 
-1. **File permissions:**
+### 2. Verify PHP Version
+```bash
+php --version
+# Must be PHP 8.2 or higher
+```
+
+### 3. Check Required Extensions
+```bash
+php -m | grep -E "mbstring|curl|xml|sqlite|pdo"
+# All should be present
+```
+
+### 4. Verify File Permissions
+```bash
+ls -la bootstrap/
+# bootstrap/cache should be drwxrwxrwx (777)
+
+ls -la storage/
+# storage should be drwxrwxrwx (777)
+```
+
+### 5. Check Disk Space
+```bash
+df -h /home/cyberbit
+# Ensure space is available
+```
+
+### 6. Verify .env File
+```bash
+cat .env | grep -E "APP_ENV|APP_DEBUG|APP_URL|DB_"
+# Should show:
+# APP_ENV=production
+# APP_DEBUG=false
+# APP_URL=https://welfare.cyberbitbyte.com
+# DB_CONNECTION=mysql (or sqlite)
+```
+
+### 7. Test PHP
+```bash
+php -r "echo 'PHP Works!';"
+# Should print: PHP Works!
+```
+
+## Emergency Rollback
+
+If nothing works, rollback to previous commit:
+
+```bash
+cd /home/cyberbit/welfare.cyberbitbyte.com
+
+# Find the previous working commit
+git log --oneline -n 5
+
+# Rollback (replace HASH with actual commit)
+git reset --hard HASH
+
+composer install --no-dev
+php artisan migrate --force
+
+# Clear caches again
+php artisan config:cache
+php artisan route:cache
+```
+
+## Verify Success
+
+Once fixed, you should be able to:
+
+1. **Check Health:**
    ```bash
-   chmod -R 755 /home/cyberbit/welfare.cyberbitbyte.com
-   chmod -R 777 /home/cyberbit/welfare.cyberbitbyte.com/storage
-   chmod -R 777 /home/cyberbit/welfare.cyberbitbyte.com/bootstrap/cache
+   curl https://welfare.cyberbitbyte.com/health
    ```
 
-2. **Check error logs:**
-   ```bash
-   tail -50 /home/cyberbit/welfare.cyberbitbyte.com/storage/logs/laravel.log
+2. **Access Main Site:**
+   ```
+   https://welfare.cyberbitbyte.com
    ```
 
-3. **Verify PHP version:**
-   ```bash
-   php --version
-   # Should be PHP 8.2 or higher
+3. **Access Admin Panel:**
+   ```
+   https://welfare.cyberbitbyte.com/admin
    ```
 
-4. **Verify Composer packages:**
+4. **Check Status:**
    ```bash
-   composer validate
+   curl -I https://welfare.cyberbitbyte.com
+   # Should return HTTP 200 (not 500)
+   ```
+
+## Prevention
+
+To prevent this in the future:
+
+1. **Always test before deploying:**
+   ```bash
+   php artisan serve   # Test locally first
+   ```
+
+2. **Use deployment automation:**
+   - Push to GitHub
+   - Let GitHub Actions test and deploy automatically
+   - Automated health checks verify success
+
+3. **Keep composer.lock:**
+   - Never delete composer.lock
+   - Always commit it to GitHub
+   - This ensures exact dependency versions
+
+4. **Monitor error logs:**
+   ```bash
+   tail -f storage/logs/laravel.log
    ```
 
 ---
 
-**The fastest fix:** Run `bash scripts/production-fix.sh` 🚀
+**Need Help?**
+- Check error logs: `tail -100 storage/logs/laravel.log`
+- Run health check: `curl https://welfare.cyberbitbyte.com/health`
+- Test locally first: `php artisan serve`
