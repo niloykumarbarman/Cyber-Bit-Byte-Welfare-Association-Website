@@ -1,14 +1,13 @@
-name: Auto-Deploy and Monitor
+name: Production Deploy and Monitor
 
 on:
   push:
     branches: [ "main" ]
-  schedule:
-    - cron: '0 */6 * * *'  # Run every 6 hours
 
 jobs:
-  pre-deploy-checks:
+  test-and-validate:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,31 +16,42 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, curl, sqlite
+          extensions: mbstring, curl, sqlite, pdo_mysql
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --no-interaction
+        run: composer install --no-interaction --prefer-dist
 
-      - name: Check PHP syntax
-        run: find app -name "*.php" -type f -exec php -l {} \;
-
-      - name: Check environment
+      - name: Prepare environment
         run: |
-          echo "Checking configuration..."
-          php artisan config:cache --env=testing
-          php artisan about
+          cp .env.example .env
+          php artisan key:generate --force
+
+      - name: PHP syntax check
+        run: find app routes tests -name "*.php" -type f -exec php -l {} +
+
+      - name: Run PHPUnit tests
+        run: ./vendor/bin/phpunit
+
+      - name: Run PHP code style check
+        run: ./vendor/bin/pint --test
 
   deploy:
-    needs: pre-deploy-checks
+    needs: test-and-validate
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to Production
-        uses: appleboy/ssh-action@master
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v0.1.11
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -49,120 +59,33 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
           script: |
-            set -e
-            
+            set -euo pipefail
+
             DEPLOY_DIR="/home/cyberbit/welfare.cyberbitbyte.com"
-            BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
-            
-            echo "=== Starting Auto-Deployment at $(date) ==="
-            
-            # Backup current code
-            cd $DEPLOY_DIR
-            git stash
-            
-            # Pull latest code
-            git fetch origin main
-            git checkout origin/main
-            
-            # Install PHP dependencies
-            composer install --no-dev --optimize-autoloader --quiet
-            
-            # Run database migrations
-            php artisan migrate --force --quiet
-            
-            # Clear caches
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            
-            # Install Node dependencies and build assets
-            npm ci --quiet
-            npm run build --quiet
-            
-            # Restart services
-            php artisan queue:restart
-            
-            # Set proper permissions
-            find storage -type f -exec chmod 644 {} \;
-            find storage -type d -exec chmod 755 {} \;
-            find bootstrap/cache -type f -exec chmod 644 {} \;
-            find bootstrap/cache -type d -exec chmod 755 {} \;
-            
-            echo "=== Deployment completed successfully at $(date) ==="
+            cd "$DEPLOY_DIR"
+
+            bash scripts/deploy.sh
 
   health-check:
     needs: deploy
     runs-on: ubuntu-latest
-    if: always()
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check server health
+      - name: Verify production health
         run: |
-          set -e
-          
+          set -euo pipefail
           HEALTH_CHECK_URL="https://welfare.cyberbitbyte.com/health"
           MAX_RETRIES=5
           RETRY_INTERVAL=10
-          
-          echo "Monitoring deployment health..."
-          
+
+          echo "Waiting for application health..."
           for i in $(seq 1 $MAX_RETRIES); do
-            echo "Health check attempt $i/$MAX_RETRIES..."
-            
+            echo "Attempt $i/$MAX_RETRIES"
             if curl -sf "$HEALTH_CHECK_URL" > /dev/null 2>&1; then
-              echo "✓ Server is healthy"
-              
-              # Additional checks
-              echo "Verifying admin panel..."
-              curl -sf "https://welfare.cyberbitbyte.com/admin" > /dev/null
-              
-              echo "✓ All health checks passed"
+              echo "✓ Health endpoint passed"
               exit 0
             fi
-            
-            if [ $i -lt $MAX_RETRIES ]; then
-              echo "Health check failed, retrying in ${RETRY_INTERVAL}s..."
-              sleep $RETRY_INTERVAL
-            fi
+            sleep $RETRY_INTERVAL
           done
-          
-          echo "✗ Server health check failed after $MAX_RETRIES attempts"
+          echo "✗ Health check did not pass"
           exit 1
-
-      - name: Notify on failure
-        if: failure()
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: 22
-          script: |
-            # Rollback to previous version if health check fails
-            cd /home/cyberbit/welfare.cyberbitbyte.com
-            git checkout HEAD~1
-            composer install --no-dev --optimize-autoloader --quiet
-            php artisan migrate --force --quiet
-            php artisan cache:clear
-            echo "Rollback completed due to health check failure"
-
-  schedule-backup:
-    runs-on: ubuntu-latest
-    if: github.event.schedule == '0 */6 * * *'
-
-    steps:
-      - name: Execute backup script
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: 22
-          script: |
-            cd /home/cyberbit/welfare.cyberbitbyte.com
-            bash scripts/backup-database.sh
