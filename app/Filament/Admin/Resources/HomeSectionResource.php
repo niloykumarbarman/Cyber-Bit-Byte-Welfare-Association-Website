@@ -43,7 +43,7 @@ class HomeSectionResource extends Resource
                 Tables\Columns\TextColumn::make('hero_title')->searchable(),
                 Tables\Columns\IconColumn::make('is_active')->boolean(),
                 Tables\Columns\TextColumn::make('sort_order')->sortable(),
-                Tables\Columns\TextColumn::make('updated_at')->dateTime()->sortable(),
+                Tables\Columns\TextColumn::make('updated_at')->label('Updated')->sortable(),
             ])
             ->defaultSort('sort_order')
             ->actions([

@@ -1,0 +1,173 @@
+name: Auto-Update README
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'app/**'
+      - 'routes/**'
+      - 'database/migrations/**'
+      - 'config/**'
+      - '.github/workflows/auto-readme.yml'
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, curl
+
+      - name: Install dependencies
+        run: composer install --no-dev --no-interaction
+
+      - name: Generate Documentation
+        id: generate
+        run: |
+          cat > generate_readme.php << 'EOF'
+          <?php
+          $readme = file_get_contents('README.md');
+          
+          // Extract author section
+          $authorPattern = '/## Author\s*\n\s*\*\*([^*]+)\*\*/';
+          preg_match($authorPattern, $readme, $authorMatches);
+          $author = $authorMatches[1] ?? 'Niloy Kumar Barman';
+          
+          // Get models
+          $modelsDir = 'app/Models';
+          $models = array_filter(scandir($modelsDir), fn($f) => str_ends_with($f, '.php') && $f !== '...');
+          
+          // Get routes
+          $routesWeb = file_get_contents('routes/web.php');
+          $routesApi = file_get_contents('routes/api.php');
+          
+          // Get migrations
+          $migrationsDir = 'database/migrations';
+          $migrations = array_filter(scandir($migrationsDir), fn($f) => str_ends_with($f, '.php'));
+          rsort($migrations);
+          
+          // Build documentation
+          $doc = <<<MARKDOWN
+          <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+          
+          <p align="center">
+          <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+          <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+          <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+          <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+          </p>
+          
+          ## Cyber-Bit Byte Welfare Association Website
+          
+          A modern Laravel 10 application with Filament Admin Panel for managing the welfare association website.
+          
+          ### Features
+          
+          - **Filament Admin Panel** - Comprehensive admin interface for managing content
+          - **Gallery Management** - Upload and manage gallery items (images and videos)
+          - **Notice Management** - Create and publish notices with attachments
+          - **Publication Management** - Manage publications and documents
+          - **Member Management** - Maintain member profiles with photos
+          - **About Us Sections** - Dynamic about page content management
+          - **Contact Information** - Manage contact details
+          - **Executive Committee** - Track committee members
+          - **Automated CI/CD** - GitHub Actions for testing and deployment
+          
+          ### Database Models
+          
+          MARKDOWN;
+          
+          foreach ($models as $model) {
+            $modelName = str_replace('.php', '', $model);
+            $doc .= "\n- **$modelName**";
+          }
+          
+          $doc .= "\n\n### Recent Migrations\n\n";
+          $recentMigrations = array_slice($migrations, 0, 5);
+          foreach ($recentMigrations as $migration) {
+            if ($migration !== '.' && $migration !== '..') {
+              $doc .= "- `$migration`\n";
+            }
+          }
+          
+          $doc .= <<<MARKDOWN
+          
+          ### Installation & Setup
+          
+          1. Clone the repository
+          2. Copy `.env.example` to `.env`
+          3. Run `composer install`
+          4. Generate key: `php artisan key:generate`
+          5. Setup database and run migrations: `php artisan migrate`
+          6. Build assets: `npm run build`
+          7. Start server: `php artisan serve`
+          
+          ### Admin Panel Access
+          
+          The Filament Admin Panel is accessible at `/admin` once authenticated.
+          
+          Manage:
+          - Gallery Items
+          - Notices
+          - Publications
+          - Members
+          - About Sections
+          - Contact Information
+          - Executive Committee Members
+          
+          ### Deployment
+          
+          This project uses GitHub Actions for automated testing and deployment.
+          
+          **Workflows:**
+          - **Tests** - Run on every push and pull request
+          - **Deploy** - Automatic deployment to production on main branch
+          - **Security** - Regular security scanning
+          - **Backup** - Automated database backups before deployment
+          - **Auto-README** - Automatic documentation updates
+          
+          ### Author
+          
+          **$author**
+          
+          ### License
+          
+          The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+          MARKDOWN;
+          
+          file_put_contents('README.md', $doc);
+          echo "README.md generated successfully";
+          EOF
+          
+          php generate_readme.php
+
+      - name: Check if README changed
+        id: changes
+        run: |
+          if git diff --quiet README.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push README updates
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config --global user.email "automation@cyberbitbyte.com"
+          git config --global user.name "Cyber-Bit Automation"
+          git add README.md
+          git commit -m "chore: auto-generate README documentation"
+          git push
+
+      - name: Cleanup
+        run: rm -f generate_readme.php

@@ -1,0 +1,214 @@
+# GitHub Automation Setup Guide
+
+This guide explains how to set up the automated CI/CD pipeline for the Cyber-Bit Welfare Association Website.
+
+## What's Automated
+
+✅ **Pre-Deployment Testing** - All code is tested before deployment  
+✅ **Automatic Deployment** - Changes pushed to `main` branch auto-deploy to production  
+✅ **Health Monitoring** - Server health checked after every deployment  
+✅ **Database Backups** - Automatic backups every 6 hours  
+✅ **README Updates** - Documentation auto-generated when code changes  
+✅ **Rollback Protection** - Failed deployments auto-rollback to previous version  
+✅ **Asset Building** - CSS/JS automatically compiled on deployment  
+✅ **Migration Execution** - Database migrations run automatically  
+
+## Required GitHub Secrets
+
+Add these secrets to your GitHub repository settings (`Settings > Secrets and variables > Actions`):
+
+### SSH Configuration
+- **SSH_HOST** - Your server's IP or domain (e.g., `welfare.cyberbitbyte.com`)
+- **SSH_USER** - SSH username (e.g., `cyberbit`)
+- **SSH_KEY** - Your private SSH key (entire key including `-----BEGIN PRIVATE KEY-----`)
+- **SSH_PASSPHRASE** - Passphrase for SSH key (leave empty if no passphrase)
+
+### Database Configuration (for remote server)
+- **DB_HOST** - Database host (e.g., `localhost`)
+- **DB_USER** - Database user (e.g., `root`)
+- **DB_PASSWORD** - Database password
+- **DB_NAME** - Database name (e.g., `welfare`)
+
+## Workflow Files Included
+
+### 1. `tests.yml`
+Runs on every push and pull request. Tests code quality and functionality.
+
+**Triggers:**
+- Push to `main` or `develop` branches
+- Pull requests to `main` or `develop`
+
+**Actions:**
+- PHP syntax checking
+- Linting with Pint
+- Unit tests with PHPUnit
+- Code coverage reports
+
+### 2. `deploy.yml`
+Automatic deployment to production after tests pass.
+
+**Triggers:**
+- Push to `main` branch (only if tests pass)
+
+**Actions:**
+- Database backup
+- Code deployment via SSH
+- Dependency installation
+- Migration execution
+- Cache optimization
+- Asset compilation
+
+### 3. `auto-readme.yml`
+Auto-generates README documentation based on project structure.
+
+**Triggers:**
+- Push to `main` branch
+- Changes to `app/`, `routes/`, `database/migrations/`, `config/` directories
+
+**Actions:**
+- Scans project structure
+- Lists models and migrations
+- Commits and pushes README updates automatically
+
+### 4. `auto-deploy.yml`
+Comprehensive deployment monitoring and health checking.
+
+**Triggers:**
+- Push to `main` branch
+- Every 6 hours (scheduled)
+
+**Actions:**
+- Pre-deployment checks
+- Auto-deployment
+- Health endpoint checks
+- Automatic rollback on failure
+- Scheduled backups
+
+### 5. `security.yml`
+Regular security scanning for vulnerabilities.
+
+**Triggers:**
+- Daily scheduled run
+- Push to `main` branch
+
+### 6. `backup.yml`
+Automated database backup management.
+
+**Triggers:**
+- Daily scheduled backup
+
+## How To Use
+
+### 1. Initial Setup
+```bash
+# Clone repository
+git clone <repository-url>
+cd CYBER-BIT-BYTE-WELFARE-ASSOCIATION-WEBSITE
+
+# Add SSH keys to GitHub
+# 1. Go to Settings > Secrets and variables > Actions
+# 2. Add SSH_HOST, SSH_USER, SSH_KEY, SSH_PASSPHRASE
+# 3. Add database secrets
+```
+
+### 2. Making Changes
+```bash
+# Create a feature branch
+git checkout -b feature/new-feature
+
+# Make your changes...
+
+# Test locally
+php artisan serve
+npm run build
+
+# Commit and push
+git add .
+git commit -m "feat: add new feature"
+git push origin feature/new-feature
+
+# GitHub Actions will:
+# 1. Run all tests
+# 2. Check code quality
+# 3. Preview deployment if you create a PR
+```
+
+### 3. Deploying to Production
+```bash
+# Create a Pull Request to main
+# GitHub Actions will run all tests
+
+# Once PR is merged to main:
+# 1. Tests run again
+# 2. Database is backed up
+# 3. Code deploys automatically
+# 4. Migrations run
+# 5. Health check verifies success
+# 6. README auto-updates if needed
+```
+
+## Monitoring Deployments
+
+### Check Deployment Status
+1. Go to your GitHub repository
+2. Click on **Actions** tab
+3. View workflow runs and logs
+
+### Check Health Alerts
+The `auto-deploy.yml` workflow will:
+- ✅ Auto-rollback if health check fails
+- 📧 Log errors in job output
+- 🔄 Retry health checks 5 times before failing
+
+## Manual Triggers
+
+### Force Deployment
+```bash
+# Push an empty commit to redeploy
+git commit --allow-empty -m "chore: trigger deployment"
+git push origin main
+```
+
+### Force Health Check
+```bash
+# Visit your health endpoint
+# https://welfare.cyberbitbyte.com/health
+```
+
+## Troubleshooting
+
+### Deployment Fails
+1. Check workflow logs in GitHub Actions
+2. Verify SSH credentials in secrets
+3. Ensure database backups have space
+4. Check server logs: `/home/cyberbit/welfare.cyberbitbyte.com/storage/logs/`
+
+### Tests Failing
+1. Check test output in GitHub Actions
+2. Fix code locally and push again
+3. Tests must pass before auto-deployment
+
+### README Not Updating
+1. Check `auto-readme.yml` logs
+2. Ensure changes are in `app/`, `routes/`, or `database/migrations/`
+3. Verify file has proper permissions to commit
+
+## Security Notes
+
+- SSH keys are encrypted in GitHub Secrets
+- Never commit `.env` or keys to repository
+- Use environment variables for sensitive data
+- Rotate SSH keys regularly
+- Keep database backups encrypted
+
+## Support
+
+For issues or questions about automation:
+1. Check GitHub Actions logs
+2. Review workflow files in `.github/workflows/`
+3. Consult deployment script logs on server
+
+---
+
+**Last Updated:** April 5, 2026  
+**Author:** Niloy Kumar Barman

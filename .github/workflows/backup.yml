@@ -1,0 +1,58 @@
+name: Scheduled Database Backup
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+    - cron: '0 10 * * 0'  # Weekly on Sunday at 10 AM UTC
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Perform Database Backup
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: 22
+          script: |
+            # Create backup directory
+            mkdir -p /home/cyberbit/backups
+            
+            # Backup database
+            BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
+            BACKUP_FILE="/home/cyberbit/backups/welfare_${BACKUP_DATE}.sql"
+            
+            mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASSWORD }}' \
+            -h ${{ secrets.DB_HOST }} ${{ secrets.DB_NAME }} > "${BACKUP_FILE}"
+            
+            # Compress backup
+            gzip "${BACKUP_FILE}"
+            
+            # Keep only last 30 days of backups
+            find /home/cyberbit/backups -name "welfare_*.sql.gz" -mtime +30 -delete
+            
+            # Log the backup
+            echo "[$(date +'%Y-%m-%d %H:%M:%S')] Backup completed: ${BACKUP_FILE}.gz" >> /home/cyberbit/backup.log
+            
+            # Optional: List recent backups
+            echo "Recent backups:" >> /home/cyberbit/backup.log
+            ls -lh /home/cyberbit/backups/welfare_*.sql.gz | tail -5 >> /home/cyberbit/backup.log
+
+      - name: Notify Backup Status
+        if: always()
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: 22
+          script: |
+            BACKUP_COUNT=$(ls -1 /home/cyberbit/backups/welfare_*.sql.gz 2>/dev/null | wc -l)
+            echo "✓ Database backup job completed. Total backups: ${BACKUP_COUNT}" >> /home/cyberbit/deploy-status.log

@@ -1,0 +1,262 @@
+app/Console/Kernel.php:15:        // $schedule->command('inspire')->hourly();
+app/Console/Kernel.php:23:        $this->load(__DIR__.'/Commands');
+app/Exceptions/Handler.php:26:        $this->reportable(function (Throwable $e) {
+app/Filament/Admin/Pages/Dashboard.php:14:    protected static ?string $navigationIcon = 'heroicon-o-chart-pie';
+app/Filament/Admin/Resources/AboutSectionResource.php:19:    protected static ?string $navigationIcon = 'heroicon-o-information-circle';
+app/Filament/Admin/Resources/AboutSectionResource.php:23:        return $form->schema([
+app/Filament/Admin/Resources/AboutSectionResource.php:24:            Forms\Components\TextInput::make('title')->maxLength(255),
+app/Filament/Admin/Resources/AboutSectionResource.php:25:            Forms\Components\RichEditor::make('description')->columnSpanFull(),
+app/Filament/Admin/Resources/AboutSectionResource.php:28:                ->image()
+app/Filament/Admin/Resources/AboutSectionResource.php:29:                ->directory('about')
+app/Filament/Admin/Resources/AboutSectionResource.php:30:                ->imageEditor(),
+app/Filament/Admin/Resources/AboutSectionResource.php:32:            Forms\Components\Toggle::make('is_active')->default(true),
+app/Filament/Admin/Resources/AboutSectionResource.php:33:            Forms\Components\TextInput::make('sort_order')->numeric()->default(0),
+app/Filament/Admin/Resources/AboutSectionResource.php:39:        return $table->columns([
+app/Filament/Admin/Resources/AboutSectionResource.php:40:            Tables\Columns\ImageColumn::make('image')->circular(),
+app/Filament/Admin/Resources/AboutSectionResource.php:41:            Tables\Columns\TextColumn::make('title')->searchable(),
+app/Filament/Admin/Resources/AboutSectionResource.php:42:            Tables\Columns\IconColumn::make('is_active')->boolean(),
+app/Filament/Admin/Resources/AboutSectionResource.php:43:            Tables\Columns\TextColumn::make('sort_order')->sortable(),
+app/Filament/Admin/Resources/AboutSectionResource.php:45:        ->defaultSort('sort_order')
+app/Filament/Admin/Resources/AboutSectionResource.php:46:        ->actions([
+app/Filament/Admin/Resources/ContactInfoResource.php:20:    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+app/Filament/Admin/Resources/ContactInfoResource.php:25:            ->schema([
+app/Filament/Admin/Resources/ContactInfoResource.php:27:                    ->schema([
+app/Filament/Admin/Resources/ContactInfoResource.php:29:                            ->label('Address')
+app/Filament/Admin/Resources/ContactInfoResource.php:30:                            ->rows(4)
+app/Filament/Admin/Resources/ContactInfoResource.php:31:                            ->required(),
+app/Filament/Admin/Resources/ContactInfoResource.php:34:                            ->label('Email')
+app/Filament/Admin/Resources/ContactInfoResource.php:35:                            ->email()
+app/Filament/Admin/Resources/ContactInfoResource.php:36:                            ->required()
+app/Filament/Admin/Resources/ContactInfoResource.php:37:                            ->maxLength(255),
+app/Filament/Admin/Resources/ContactInfoResource.php:40:                            ->label('Phone')
+app/Filament/Admin/Resources/ContactInfoResource.php:41:                            ->required()
+app/Filament/Admin/Resources/ContactInfoResource.php:42:                            ->maxLength(50),
+app/Filament/Admin/Resources/ContactInfoResource.php:45:                            ->label('Google Map Embed Code')
+app/Filament/Admin/Resources/ContactInfoResource.php:46:                            ->rows(4),
+app/Filament/Admin/Resources/ContactInfoResource.php:54:            ->columns([
+app/Filament/Admin/Resources/ContactInfoResource.php:56:                    ->label('Email')
+app/Filament/Admin/Resources/ContactInfoResource.php:57:                    ->searchable(),
+app/Filament/Admin/Resources/ContactInfoResource.php:60:                    ->label('Phone'),
+app/Filament/Admin/Resources/ContactInfoResource.php:63:                    ->label('Address')
+app/Filament/Admin/Resources/ContactInfoResource.php:64:                    ->limit(40),
+app/Filament/Admin/Resources/ContactInfoResource.php:67:                    ->label('Map')
+app/Filament/Admin/Resources/ContactInfoResource.php:68:                    ->boolean(),
+app/Filament/Admin/Resources/ContactInfoResource.php:70:            ->filters([
+app/Filament/Admin/Resources/ContactInfoResource.php:73:            ->actions([
+app/Filament/Admin/Resources/ContactInfoResource.php:77:            ->bulkActions([
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:20:    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:25:            ->schema([
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:27:                    ->schema([
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:29:                            ->label('Name')
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:30:                            ->required()
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:31:                            ->maxLength(255),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:34:                            ->label('Designation')
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:35:                            ->required()
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:36:                            ->maxLength(255),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:39:                            ->label('Email')
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:40:                            ->email()
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:41:                            ->required()
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:42:                            ->maxLength(255),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:45:                            ->label('Phone')
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:46:                            ->required()
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:47:                            ->maxLength(50),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:50:                            ->image()
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:51:                            ->directory('committee-members')
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:52:                            ->maxSize(5120)
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:53:                            ->label('Photo'),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:56:                            ->label('Sort Order')
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:57:                            ->numeric()
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:58:                            ->default(0),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:66:            ->columns([
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:68:                    ->label('Photo')
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:69:                    ->circular(),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:71:                    ->searchable()
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:72:                    ->sortable(),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:74:                    ->searchable(),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:76:                    ->searchable(),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:79:                    ->sortable(),
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:81:            ->filters([
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:84:            ->actions([
+app/Filament/Admin/Resources/ExecutiveCommitteeMemberResource.php:88:            ->bulkActions([
+app/Filament/Admin/Resources/GalleryItemResource.php:20:    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+app/Filament/Admin/Resources/GalleryItemResource.php:25:            ->schema([
+app/Filament/Admin/Resources/GalleryItemResource.php:27:                    ->schema([
+app/Filament/Admin/Resources/GalleryItemResource.php:29:                            ->label('Title')
+app/Filament/Admin/Resources/GalleryItemResource.php:30:                            ->required()
+app/Filament/Admin/Resources/GalleryItemResource.php:31:                            ->maxLength(255),
+app/Filament/Admin/Resources/GalleryItemResource.php:34:                            ->label('Type')
+app/Filament/Admin/Resources/GalleryItemResource.php:35:                            ->options([
+app/Filament/Admin/Resources/GalleryItemResource.php:39:                            ->required()
+app/Filament/Admin/Resources/GalleryItemResource.php:40:                            ->reactive(),
+app/Filament/Admin/Resources/GalleryItemResource.php:43:                            ->label('Image File')
+app/Filament/Admin/Resources/GalleryItemResource.php:44:                            ->image()
+app/Filament/Admin/Resources/GalleryItemResource.php:45:                            ->directory('gallery')
+app/Filament/Admin/Resources/GalleryItemResource.php:46:                            ->maxSize(5120)
+app/Filament/Admin/Resources/GalleryItemResource.php:47:                            ->visible(fn (callable $get) => $get('type') === 'image'),
+app/Filament/Admin/Resources/GalleryItemResource.php:50:                            ->label('Video URL')
+app/Filament/Admin/Resources/GalleryItemResource.php:51:                            ->url()
+app/Filament/Admin/Resources/GalleryItemResource.php:52:                            ->maxLength(255)
+app/Filament/Admin/Resources/GalleryItemResource.php:53:                            ->visible(fn (callable $get) => $get('type') === 'video'),
+app/Filament/Admin/Resources/GalleryItemResource.php:61:            ->columns([
+app/Filament/Admin/Resources/GalleryItemResource.php:63:                    ->searchable()
+app/Filament/Admin/Resources/GalleryItemResource.php:64:                    ->sortable(),
+app/Filament/Admin/Resources/GalleryItemResource.php:66:                    ->colors([
+app/Filament/Admin/Resources/GalleryItemResource.php:71:                    ->label('File')
+app/Filament/Admin/Resources/GalleryItemResource.php:72:                    ->limit(30),
+app/Filament/Admin/Resources/GalleryItemResource.php:74:                    ->label('Video URL')
+app/Filament/Admin/Resources/GalleryItemResource.php:75:                    ->limit(40),
+app/Filament/Admin/Resources/GalleryItemResource.php:77:            ->filters([
+app/Filament/Admin/Resources/GalleryItemResource.php:80:            ->actions([
+app/Filament/Admin/Resources/GalleryItemResource.php:84:            ->bulkActions([
+app/Filament/Admin/Resources/HomeSectionResource.php:19:    protected static ?string $navigationIcon = 'heroicon-o-home';
+app/Filament/Admin/Resources/HomeSectionResource.php:24:            ->schema([
+app/Filament/Admin/Resources/HomeSectionResource.php:25:                Forms\Components\TextInput::make('hero_title')->maxLength(255),
+app/Filament/Admin/Resources/HomeSectionResource.php:26:                Forms\Components\Textarea::make('hero_subtitle')->rows(4),
+app/Filament/Admin/Resources/HomeSectionResource.php:29:                    ->image()
+app/Filament/Admin/Resources/HomeSectionResource.php:30:                    ->directory('home')
+app/Filament/Admin/Resources/HomeSectionResource.php:31:                    ->imageEditor(),
+app/Filament/Admin/Resources/HomeSectionResource.php:33:                Forms\Components\Toggle::make('is_active')->default(true),
+app/Filament/Admin/Resources/HomeSectionResource.php:34:                Forms\Components\TextInput::make('sort_order')->numeric()->default(0),
+app/Filament/Admin/Resources/HomeSectionResource.php:41:            ->columns([
+app/Filament/Admin/Resources/HomeSectionResource.php:42:                Tables\Columns\ImageColumn::make('hero_image')->circular(),
+app/Filament/Admin/Resources/HomeSectionResource.php:43:                Tables\Columns\TextColumn::make('hero_title')->searchable(),
+app/Filament/Admin/Resources/HomeSectionResource.php:44:                Tables\Columns\IconColumn::make('is_active')->boolean(),
+app/Filament/Admin/Resources/HomeSectionResource.php:45:                Tables\Columns\TextColumn::make('sort_order')->sortable(),
+app/Filament/Admin/Resources/HomeSectionResource.php:46:                Tables\Columns\TextColumn::make('updated_at')->label('Updated')->sortable(),
+app/Filament/Admin/Resources/HomeSectionResource.php:48:            ->defaultSort('sort_order')
+app/Filament/Admin/Resources/HomeSectionResource.php:49:            ->actions([
+app/Filament/Admin/Resources/HomeSectionResource.php:53:            ->bulkActions([
+app/Filament/Admin/Resources/MemberResource.php:17:    protected static ?string $navigationIcon = 'heroicon-o-user';
+app/Filament/Admin/Resources/MemberResource.php:22:            ->schema([
+app/Filament/Admin/Resources/MemberResource.php:24:                    ->schema([
+app/Filament/Admin/Resources/MemberResource.php:26:                            ->required()
+app/Filament/Admin/Resources/MemberResource.php:27:                            ->maxLength(255)
+app/Filament/Admin/Resources/MemberResource.php:28:                            ->placeholder('Enter member name'),
+app/Filament/Admin/Resources/MemberResource.php:30:                            ->required()
+app/Filament/Admin/Resources/MemberResource.php:31:                            ->unique(ignoreRecord: true)
+app/Filament/Admin/Resources/MemberResource.php:32:                            ->maxLength(255)
+app/Filament/Admin/Resources/MemberResource.php:33:                            ->placeholder('Member ID'),
+app/Filament/Admin/Resources/MemberResource.php:35:                            ->email()
+app/Filament/Admin/Resources/MemberResource.php:36:                            ->maxLength(255)
+app/Filament/Admin/Resources/MemberResource.php:37:                            ->placeholder('email@example.com'),
+app/Filament/Admin/Resources/MemberResource.php:39:                            ->tel()
+app/Filament/Admin/Resources/MemberResource.php:40:                            ->maxLength(20)
+app/Filament/Admin/Resources/MemberResource.php:41:                            ->placeholder('+1 (555) 000-0000'),
+app/Filament/Admin/Resources/MemberResource.php:43:                            ->image()
+app/Filament/Admin/Resources/MemberResource.php:44:                            ->directory('members')
+app/Filament/Admin/Resources/MemberResource.php:45:                            ->maxSize(5120)
+app/Filament/Admin/Resources/MemberResource.php:46:                            ->label('Profile Photo'),
+app/Filament/Admin/Resources/MemberResource.php:54:            ->columns([
+app/Filament/Admin/Resources/MemberResource.php:56:                    ->circular(),
+app/Filament/Admin/Resources/MemberResource.php:58:                    ->searchable()
+app/Filament/Admin/Resources/MemberResource.php:59:                    ->sortable(),
+app/Filament/Admin/Resources/MemberResource.php:61:                    ->searchable(),
+app/Filament/Admin/Resources/MemberResource.php:63:                    ->searchable(),
+app/Filament/Admin/Resources/MemberResource.php:66:            ->filters([])
+app/Filament/Admin/Resources/MemberResource.php:67:            ->actions([
+app/Filament/Admin/Resources/MemberResource.php:71:            ->bulkActions([
+app/Filament/Admin/Resources/NoticeResource.php:17:    protected static ?string $navigationIcon = 'heroicon-o-bell';
+app/Filament/Admin/Resources/NoticeResource.php:22:            ->schema([
+app/Filament/Admin/Resources/NoticeResource.php:24:                    ->schema([
+app/Filament/Admin/Resources/NoticeResource.php:26:                            ->required()
+app/Filament/Admin/Resources/NoticeResource.php:27:                            ->maxLength(255)
+app/Filament/Admin/Resources/NoticeResource.php:28:                            ->placeholder('Notice title'),
+app/Filament/Admin/Resources/NoticeResource.php:30:                            ->required()
+app/Filament/Admin/Resources/NoticeResource.php:31:                            ->columnSpan('full')
+app/Filament/Admin/Resources/NoticeResource.php:32:                            ->label('Content'),
+app/Filament/Admin/Resources/NoticeResource.php:34:                            ->required()
+app/Filament/Admin/Resources/NoticeResource.php:35:                            ->label('Publish Date'),
+app/Filament/Admin/Resources/NoticeResource.php:37:                            ->directory('attachments')
+app/Filament/Admin/Resources/NoticeResource.php:38:                            ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+app/Filament/Admin/Resources/NoticeResource.php:39:                            ->maxSize(10240)
+app/Filament/Admin/Resources/NoticeResource.php:40:                            ->label('Attachment (PDF or DOC)'),
+app/Filament/Admin/Resources/NoticeResource.php:48:            ->columns([
+app/Filament/Admin/Resources/NoticeResource.php:50:                    ->searchable()
+app/Filament/Admin/Resources/NoticeResource.php:51:                    ->sortable(),
+app/Filament/Admin/Resources/NoticeResource.php:53:                    ->label('Publish Date')
+app/Filament/Admin/Resources/NoticeResource.php:54:                    ->sortable(),
+app/Filament/Admin/Resources/NoticeResource.php:56:                    ->boolean()
+app/Filament/Admin/Resources/NoticeResource.php:57:                    ->label('Has Attachment'),
+app/Filament/Admin/Resources/NoticeResource.php:59:            ->filters([])
+app/Filament/Admin/Resources/NoticeResource.php:60:            ->actions([
+app/Filament/Admin/Resources/NoticeResource.php:64:            ->bulkActions([
+app/Filament/Admin/Resources/PublicationResource.php:17:    protected static ?string $navigationIcon = 'heroicon-o-book-open';
+app/Filament/Admin/Resources/PublicationResource.php:22:            ->schema([
+app/Filament/Admin/Resources/PublicationResource.php:24:                    ->schema([
+app/Filament/Admin/Resources/PublicationResource.php:26:                            ->required()
+app/Filament/Admin/Resources/PublicationResource.php:27:                            ->maxLength(255)
+app/Filament/Admin/Resources/PublicationResource.php:28:                            ->placeholder('Publication title'),
+app/Filament/Admin/Resources/PublicationResource.php:30:                            ->required()
+app/Filament/Admin/Resources/PublicationResource.php:31:                            ->columnSpan('full')
+app/Filament/Admin/Resources/PublicationResource.php:32:                            ->label('Description'),
+app/Filament/Admin/Resources/PublicationResource.php:34:                            ->required()
+app/Filament/Admin/Resources/PublicationResource.php:35:                            ->directory('publications')
+app/Filament/Admin/Resources/PublicationResource.php:36:                            ->acceptedFileTypes(['application/pdf'])
+app/Filament/Admin/Resources/PublicationResource.php:37:                            ->maxSize(51200)
+app/Filament/Admin/Resources/PublicationResource.php:38:                            ->label('PDF File'),
+app/Filament/Admin/Resources/PublicationResource.php:46:            ->columns([
+app/Filament/Admin/Resources/PublicationResource.php:48:                    ->searchable()
+app/Filament/Admin/Resources/PublicationResource.php:49:                    ->sortable(),
+app/Filament/Admin/Resources/PublicationResource.php:51:                    ->label('Published')
+app/Filament/Admin/Resources/PublicationResource.php:52:                    ->sortable(),
+app/Filament/Admin/Resources/PublicationResource.php:54:            ->filters([])
+app/Filament/Admin/Resources/PublicationResource.php:55:            ->actions([
+app/Filament/Admin/Resources/PublicationResource.php:59:            ->bulkActions([
+app/Filament/Admin/Resources/UserResource/Pages/CreateUser.php:15:        return $this->getResource()::getUrl('index');
+app/Filament/Admin/Resources/UserResource/Pages/EditUser.php:22:        return $this->getResource()::getUrl('index');
+app/Filament/Admin/Resources/UserResource.php:18:    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+app/Filament/Admin/Resources/UserResource.php:22:    protected static ?int $navigationSort = -2;
+app/Filament/Admin/Resources/UserResource.php:27:            ->schema([
+app/Filament/Admin/Resources/UserResource.php:29:                    ->description('Create or update user details')
+app/Filament/Admin/Resources/UserResource.php:30:                    ->schema([
+app/Filament/Admin/Resources/UserResource.php:32:                            ->label('Full Name')
+app/Filament/Admin/Resources/UserResource.php:33:                            ->required()
+app/Filament/Admin/Resources/UserResource.php:34:                            ->maxLength(255)
+app/Filament/Admin/Resources/UserResource.php:35:                            ->placeholder('Enter user name'),
+app/Filament/Admin/Resources/UserResource.php:38:                            ->label('Email Address')
+app/Filament/Admin/Resources/UserResource.php:39:                            ->email()
+app/Filament/Admin/Resources/UserResource.php:40:                            ->required()
+app/Filament/Admin/Resources/UserResource.php:41:                            ->unique(ignoreRecord: true)
+app/Filament/Admin/Resources/UserResource.php:42:                            ->placeholder('user@example.com'),
+app/Filament/Admin/Resources/UserResource.php:45:                            ->label('Password')
+app/Filament/Admin/Resources/UserResource.php:46:                            ->password()
+app/Filament/Admin/Resources/UserResource.php:47:                            ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
+app/Filament/Admin/Resources/UserResource.php:48:                            ->required(fn (string $context) => $context === 'create')
+app/Filament/Admin/Resources/UserResource.php:49:                            ->minLength(8)
+app/Filament/Admin/Resources/UserResource.php:50:                            ->placeholder('••••••••'),
+app/Filament/Admin/Resources/UserResource.php:58:            ->columns([
+app/Filament/Admin/Resources/UserResource.php:60:                    ->label('Name')
+app/Filament/Admin/Resources/UserResource.php:61:                    ->searchable()
+app/Filament/Admin/Resources/UserResource.php:62:                    ->sortable(),
+app/Filament/Admin/Resources/UserResource.php:65:                    ->label('Email')
+app/Filament/Admin/Resources/UserResource.php:66:                    ->searchable()
+app/Filament/Admin/Resources/UserResource.php:67:                    ->sortable(),
+app/Filament/Admin/Resources/UserResource.php:70:                    ->label('Created')
+app/Filament/Admin/Resources/UserResource.php:71:                    ->sortable(),
+app/Filament/Admin/Resources/UserResource.php:73:            ->filters([
+app/Filament/Admin/Resources/UserResource.php:76:            ->actions([
+app/Filament/Admin/Resources/UserResource.php:80:            ->bulkActions([
+app/Http/Kernel.php:14:     * @var array<int, class-string|string>
+app/Http/Kernel.php:29:     * @var array<string, array<int, class-string|string>>
+app/Http/Kernel.php:53:     * @var array<string, class-string|string>
+app/Http/Middleware/Authenticate.php:15:        return $request->expectsJson() ? null : route('login');
+app/Http/Middleware/RedirectIfAuthenticated.php:23:            if (Auth::guard($guard)->check()) {
+app/Http/Middleware/TrustHosts.php:17:            $this->allSubdomainsOfApplicationUrl(),
+app/Providers/AuthServiceProvider.php:13:     * @var array<class-string, class-string>
+app/Providers/EventServiceProvider.php:15:     * @var array<class-string, array<int, class-string>>
+app/Providers/Filament/AdminPanelProvider.php:26:            ->id('admin')
+app/Providers/Filament/AdminPanelProvider.php:27:            ->path('admin')
+app/Providers/Filament/AdminPanelProvider.php:30:            ->login()
+app/Providers/Filament/AdminPanelProvider.php:32:            ->colors([
+app/Providers/Filament/AdminPanelProvider.php:36:            ->discoverResources(
+app/Providers/Filament/AdminPanelProvider.php:40:            ->discoverPages(
+app/Providers/Filament/AdminPanelProvider.php:44:            ->pages([
+app/Providers/Filament/AdminPanelProvider.php:47:            ->discoverWidgets(
+app/Providers/Filament/AdminPanelProvider.php:51:            ->widgets([
+app/Providers/Filament/AdminPanelProvider.php:55:            ->middleware([
+app/Providers/Filament/AdminPanelProvider.php:66:            ->authMiddleware([
+app/Providers/RouteServiceProvider.php:28:            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+app/Providers/RouteServiceProvider.php:31:        $this->routes(function () {
+app/Providers/RouteServiceProvider.php:33:                ->prefix('api')
+app/Providers/RouteServiceProvider.php:34:                ->group(base_path('routes/api.php'));
+app/Providers/RouteServiceProvider.php:37:                ->group(base_path('routes/web.php'));

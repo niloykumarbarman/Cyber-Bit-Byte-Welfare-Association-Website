@@ -38,7 +38,13 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DATABASE_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => ($database = env('DB_DATABASE', 'database/database.sqlite')) && (
+                    str_starts_with($database, '/') ||
+                    str_starts_with($database, '\\') ||
+                    (strlen($database) > 2 && ctype_alpha($database[0]) && $database[1] === ':' && ($database[2] === '\\' || $database[2] === '/'))
+                )
+                    ? $database
+                    : database_path($database),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],

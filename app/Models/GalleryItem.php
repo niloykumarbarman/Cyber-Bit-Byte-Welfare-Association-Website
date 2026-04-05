@@ -9,7 +9,7 @@ class GalleryItem extends Model
     protected $fillable = [
         'title',
         'type',
-        'file',
+        'image',
         'video_url',
     ];
 }

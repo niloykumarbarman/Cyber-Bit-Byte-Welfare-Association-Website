@@ -23,7 +23,28 @@ class ContactInfoResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Section::make('Contact Information')
+                    ->schema([
+                        Forms\Components\Textarea::make('address')
+                            ->label('Address')
+                            ->rows(4)
+                            ->required(),
+
+                        Forms\Components\TextInput::make('email')
+                            ->label('Email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('phone')
+                            ->label('Phone')
+                            ->required()
+                            ->maxLength(50),
+
+                        Forms\Components\Textarea::make('map_embed')
+                            ->label('Google Map Embed Code')
+                            ->rows(4),
+                    ]),
             ]);
     }
 
@@ -31,13 +52,27 @@ class ContactInfoResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('phone')
+                    ->label('Phone'),
+
+                Tables\Columns\TextColumn::make('address')
+                    ->label('Address')
+                    ->limit(40),
+
+                Tables\Columns\IconColumn::make('map_embed')
+                    ->label('Map')
+                    ->boolean(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

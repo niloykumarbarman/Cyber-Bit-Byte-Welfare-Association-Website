@@ -8,7 +8,9 @@ class AboutSection extends Model
 {
     protected $fillable = [
         'title',
-        'content',
+        'description',
         'image',
+        'is_active',
+        'sort_order',
     ];
 }

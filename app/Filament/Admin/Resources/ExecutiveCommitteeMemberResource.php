@@ -23,7 +23,40 @@ class ExecutiveCommitteeMemberResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Section::make('Committee Member Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Name')
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('designation')
+                            ->label('Designation')
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('email')
+                            ->label('Email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('phone')
+                            ->label('Phone')
+                            ->required()
+                            ->maxLength(50),
+
+                        Forms\Components\FileUpload::make('photo')
+                            ->image()
+                            ->directory('committee-members')
+                            ->maxSize(5120)
+                            ->label('Photo'),
+
+                        Forms\Components\TextInput::make('sort_order')
+                            ->label('Sort Order')
+                            ->numeric()
+                            ->default(0),
+                    ]),
             ]);
     }
 
@@ -31,13 +64,26 @@ class ExecutiveCommitteeMemberResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\ImageColumn::make('photo')
+                    ->label('Photo')
+                    ->circular(),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('designation')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('phone'),
+                Tables\Columns\TextColumn::make('sort_order')
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
