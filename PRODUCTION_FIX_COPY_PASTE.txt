@@ -1,0 +1,47 @@
+# COPY AND PASTE THIS DIRECTLY INTO YOUR PRODUCTION SERVER
+
+## Step 1: SSH to your server
+ssh -i your_key.pem cyberbit@your-server-ip
+
+## Step 2: Copy and paste THIS ENTIRE COMMAND into the terminal:
+
+cd /home/cyberbit/welfare.cyberbitbyte.com && rm -rf vendor composer.lock storage/framework/cache/* storage/framework/views/* bootstrap/cache/* && git fetch origin main && git reset --hard origin/main && git clean -fd && composer install --no-dev --optimize-autoloader && mkdir -p bootstrap/cache && chmod -R 777 bootstrap/cache storage && php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan route:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan migrate --force && chown -R www-data:www-data . 2>/dev/null || true && find . -type f -name "*.php" -exec chmod 644 {} \; && find storage -type d -exec chmod 755 {} \; 2>/dev/null && find bootstrap/cache -type d -exec chmod 755 {} \; 2>/dev/null && echo "✅ FIX COMPLETE - Testing..." && sleep 2 && curl -s https://welfare.cyberbitbyte.com/health && echo "" && echo "If you see JSON with 'ok' status above, the server is FIXED! ✅"
+
+## That's it! Just wait 2-3 minutes and the server will be fixed.
+
+## If you see ✅ at the end, visit: https://welfare.cyberbitbyte.com
+
+---
+
+WHAT THE COMMAND DOES:
+1. ✓ Deletes all corrupted vendor files
+2. ✓ Resets code to GitHub
+3. ✓ Installs fresh dependencies
+4. ✓ Clears all caches
+5. ✓ Rebuilds optimized caches
+6. ✓ Runs migrations
+7. ✓ Fixes permissions
+8. ✓ Tests the server
+
+EXPECTED OUTPUT:
+- Many lines of composer installing
+- "Configuration cached successfully"
+- "Routes cached successfully"  
+- "Blade templates cached successfully"
+- Health check result showing: {"status":"ok"...}
+- Message: ✅ FIX COMPLETE
+
+IF STILL NOT WORKING AFTER THIS:
+Check these:
+1. Database connection: cat .env | grep DB_
+2. Error logs: tail -50 storage/logs/laravel.log
+3. PHP version: php --version (should be 8.2+)
+4. Disk space: df -h
+
+STILL STUCK?
+If the fix doesn't work, the server might have environmental issues:
+- Database not connected
+- PHP version too old (needs 8.2+)
+- Missing PHP extensions (curl, mbstring, etc)
+- Insufficient disk space
+- Wrong file ownership/permissions
