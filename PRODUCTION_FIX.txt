@@ -1,0 +1,125 @@
+# Quick Production Fix Guide
+
+The error on welfare.cyberbitbyte.com is a Laravel bootstrap caching issue. Follow these steps to fix it:
+
+## Option 1: Auto-Fix Script (Recommended)
+
+SSH into your production server and run:
+
+```bash
+cd /home/cyberbit/welfare.cyberbitbyte.com
+bash scripts/production-fix.sh
+```
+
+This script will:
+- Pull latest code from GitHub
+- Clear all caches
+- Optimize the application
+- Run migrations
+- Set proper permissions
+
+## Option 2: Manual Fix
+
+SSH into your production server and run these commands:
+
+```bash
+cd /home/cyberbit/welfare.cyberbitbyte.com
+
+# Pull latest code
+git pull origin main
+
+# Install dependencies
+composer install --no-dev --optimize-autoloader
+
+# Clear all caches
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+
+# Rebuild caches
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Run migrations
+php artisan migrate --force
+
+# Set permissions
+find storage -type f -exec chmod 644 {} \;
+find storage -type d -exec chmod 755 {} \;
+```
+
+## Option 3: Update .env File
+
+The production server needs to use the correct .env configuration:
+
+```bash
+cd /home/cyberbit/welfare.cyberbitbyte.com
+
+# Copy the production environment file
+cp .env.production .env
+
+# Update database credentials in .env
+nano .env
+
+# Make sure these are set correctly:
+# - DB_CONNECTION=mysql (or your database type)
+# - DB_HOST=localhost
+# - DB_DATABASE=welfare_db
+# - DB_USERNAME=welfare_user
+# - DB_PASSWORD=your_actual_password
+# - APP_ENV=production
+# - APP_DEBUG=false
+# - APP_URL=https://welfare.cyberbitbyte.com
+```
+
+## Test the Fix
+
+After running the fix script, visit:
+
+```
+https://welfare.cyberbitbyte.com/health
+```
+
+You should see:
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-04-05T...",
+  "app": "Cyber-Bit Welfare"
+}
+```
+
+If you see this response, the site is fixed! ✅
+
+## Still Having Issues?
+
+Check these:
+
+1. **File permissions:**
+   ```bash
+   chmod -R 755 /home/cyberbit/welfare.cyberbitbyte.com
+   chmod -R 777 /home/cyberbit/welfare.cyberbitbyte.com/storage
+   chmod -R 777 /home/cyberbit/welfare.cyberbitbyte.com/bootstrap/cache
+   ```
+
+2. **Check error logs:**
+   ```bash
+   tail -50 /home/cyberbit/welfare.cyberbitbyte.com/storage/logs/laravel.log
+   ```
+
+3. **Verify PHP version:**
+   ```bash
+   php --version
+   # Should be PHP 8.2 or higher
+   ```
+
+4. **Verify Composer packages:**
+   ```bash
+   composer validate
+   ```
+
+---
+
+**The fastest fix:** Run `bash scripts/production-fix.sh` 🚀
