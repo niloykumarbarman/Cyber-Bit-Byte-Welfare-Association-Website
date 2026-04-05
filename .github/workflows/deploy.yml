@@ -1,0 +1,134 @@
+name: Deploy Laravel Project
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testing
+        options: >-
+          --health-cmd="mysqladmin ping" --health-interval=10s
+          --health-timeout=5s --health-retries=3
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysql, pdo_mysql, mbstring, xml, curl
+          coverage: xdebug
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts
+
+      - name: Copy .env file
+        run: cp .env.example .env
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Run tests
+        run: ./vendor/bin/phpunit
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Backup Database
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: 22
+          script: |
+            # Create backup directory if it doesn't exist
+            mkdir -p /home/cyberbit/backups
+            
+            # Backup database
+            BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
+            BACKUP_FILE="/home/cyberbit/backups/welfare_${BACKUP_DATE}.sql"
+            
+            mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASSWORD }}' \
+            -h ${{ secrets.DB_HOST }} ${{ secrets.DB_NAME }} > "${BACKUP_FILE}"
+            
+            # Compress backup
+            gzip "${BACKUP_FILE}"
+            
+            # Keep only last 7 days of backups
+            find /home/cyberbit/backups -name "welfare_*.sql.gz" -mtime +7 -delete
+            
+            echo "Backup completed: ${BACKUP_FILE}.gz"
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: 22
+          script: |
+            cd /home/cyberbit/welfare.cyberbitbyte.com
+            
+            # Pull latest code
+            git pull origin main
+            
+            # Install dependencies
+            composer install --no-dev --optimize-autoloader
+            
+            # Run migrations
+            php artisan migrate --force
+            
+            # Clear caches and optimize
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            
+            # Build assets if needed
+            npm ci
+            npm run build
+            
+            # Restart queue if using queues
+            php artisan queue:restart
+            
+            # Set permissions
+            chmod -R 775 storage bootstrap/cache
+            chown -R www-data:www-data /home/cyberbit/welfare.cyberbitbyte.com
+
+      - name: Notify Deployment Success
+        if: success()
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: 22
+          script: |
+            echo "✅ Deployment completed successfully on $(date)" >> /home/cyberbit/deployment.log
