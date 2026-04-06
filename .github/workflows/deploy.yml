@@ -95,28 +95,31 @@ jobs:
           port: 22
           script: |
             cd /home/cyberbit/welfare.cyberbitbyte.com
-            
-            # Pull latest code
-            git pull origin main
-            
+
+            # Ensure production copy is clean and exactly matches origin/main
+            git fetch --all --prune
+            git reset --hard origin/main
+            git clean -fd
+
             # Install dependencies
-            composer install --no-dev --optimize-autoloader
-            
+            composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+            composer dump-autoload -o
+
             # Run migrations
             php artisan migrate --force
-            
+
             # Clear caches and optimize
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            
+
             # Build assets if needed
             npm ci
             npm run build
-            
+
             # Restart queue if using queues
             php artisan queue:restart
-            
+
             # Set permissions
             chmod -R 775 storage bootstrap/cache
             chown -R www-data:www-data /home/cyberbit/welfare.cyberbitbyte.com
