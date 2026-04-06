@@ -96,6 +96,23 @@ jobs:
           script: |
             cd /home/cyberbit/welfare.cyberbitbyte.com
 
+            # Verify PHP version meets requirements (8.3.0+)
+            PHP_VERSION=$(php -v | grep -oP 'PHP \K[0-9]+\.[0-9]+\.[0-9]+')
+            echo "Detected PHP version: $PHP_VERSION"
+            
+            # Check if PHP 8.3 is available, if not use the system default
+            if ! php -v | grep -q "PHP 8.3"; then
+              if command -v php8.3 &> /dev/null; then
+                alias php='php8.3'
+                echo "Using PHP 8.3"
+              elif command -v php8.4 &> /dev/null; then
+                alias php='php8.4'
+                echo "Using PHP 8.4"
+              else
+                echo "Warning: PHP 8.3+ not found, attempting with current PHP ($PHP_VERSION)"
+              fi
+            fi
+
             # Ensure production copy is clean and exactly matches origin/main
             git fetch --all --prune
             git reset --hard origin/main
