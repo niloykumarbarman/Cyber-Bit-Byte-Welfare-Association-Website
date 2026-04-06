@@ -101,9 +101,17 @@ jobs:
             git reset --hard origin/main
             git clean -fd
 
-            # Install dependencies
-            composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+            # Clear Composer cache and remove old vendor directory to ensure clean install
+            composer clear-cache
+            rm -rf vendor/ 2>/dev/null || true
+            
+            # Install dependencies from updated composer.lock with clean vendor folder
+            composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-scripts
             composer dump-autoload -o
+            
+            # Validate installed vendor meets requirements and bootstrap is compatible
+            composer diagnose --no-interaction || true
+            php -r 'require "bootstrap/app.php"; echo "✓ Bootstrap app.php loads successfully\n";'
 
             # Run migrations
             php artisan migrate --force
